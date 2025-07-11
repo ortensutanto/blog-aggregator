@@ -12,41 +12,38 @@ function getConfigFilePath(): string {
 }
 
 function validateConfig(rawConfig: any): Config {
-    const parsedConfig = JSON.parse(rawConfig);
-    if ("db_url" in parsedConfig) {
-        return {
-            dbUrl: parsedConfig.db_url,
-            currentUserName: parsedConfig.current_user_name
-        }
+    if (!rawConfig.db_url || typeof rawConfig.db_url !== "string") {
+        throw new Error("db_url is required in config file");
     }
-    // Not sure what to return here, just putting this temporarily.
-    return {dbUrl: "", currentUserName: ""};
+    if (!rawConfig.current_user_name || typeof rawConfig.current_user_name !== "string") {
+        throw new Error("current_user_name is required in config file");
+    }
+
+    const config: Config = {
+        dbUrl: rawConfig.db_url,
+        currentUserName: rawConfig.current_user_name
+    };
+    return config;
 }
 
 export function readConfig(): Config {
     const configFile = fs.readFileSync(getConfigFilePath(), 'utf-8');
-    const parsedConfig = validateConfig(configFile);
-
-    if (parsedConfig.dbUrl !== "") {
-        return parsedConfig;
-    }
-    return {dbUrl: "", currentUserName: ""};
+    const rawConfig = JSON.parse(configFile);
+    return validateConfig(rawConfig);
 }
 
 function writeConfig(cfg: Config): void {
-    const writtenConfig = `{
-    "db_url": "${cfg.dbUrl}",
-    "current_user_name": "${cfg.currentUserName}"
-}`
+    const rawConfig = {
+        db_url: cfg.dbUrl,
+        current_user_name: cfg.currentUserName
+    };
+
+    const writtenConfig = JSON.stringify(rawConfig, null, );
     fs.writeFileSync(getConfigFilePath(), writtenConfig, 'utf-8');
 }
 
 export function setUser(userName: string) {
     const currentConfig = readConfig();
-    const newConfig: Config = {
-        dbUrl: currentConfig.dbUrl,
-        currentUserName: userName
-    };
-    // console.log(newConfig);
-    writeConfig(newConfig);
+    currentConfig.currentUserName = userName;
+    writeConfig(currentConfig);
 }
