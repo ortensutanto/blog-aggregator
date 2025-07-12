@@ -1,5 +1,6 @@
 import { readConfig, setUser } from "./config";
 import { createUser, getUserByName, getUsers, resetUsers } from "./lib/db/queries/users";
+import { fetchFeed } from "./lib/rss/feed";
 
 type CommandHandler = (cmdName: string, ...args: string[]) => Promise<void>;
 
@@ -74,6 +75,13 @@ export async function handlerGetUsers(cmdName: string, ...args: string[]) {
         // Not going to log since it doubles it?
         throw err;
     }
+}
+
+export async function handlerRssFeed(cmdName: string, ...args: string[]) {
+    const tempUrl = "https://www.wagslane.dev/index.xml";
+    const feedData = await fetchFeed(tempUrl);
+    const feedDataStr = JSON.stringify(feedData, null, 2);
+    console.log(feedDataStr);
 }
 
 export async function registerCommand(registry: CommandsRegistry, cmdName: string, handler: CommandHandler) {

@@ -1,4 +1,4 @@
-import { CommandsRegistry, handlerGetUsers, handlerLogin, handlerRegister, handlerReset, registerCommand, runCommand } from "./commandHelper";
+import { CommandsRegistry, handlerGetUsers, handlerLogin, handlerRegister, handlerReset, handlerRssFeed, registerCommand, runCommand } from "./commandHelper";
 import { readConfig, setUser } from "./config";
 
 async function main() {
@@ -7,6 +7,7 @@ async function main() {
     registerCommand(registry, "register", handlerRegister);
     registerCommand(registry, "reset", handlerReset);
     registerCommand(registry, "users", handlerGetUsers);
+    registerCommand(registry, "agg", handlerRssFeed);
 
     try {
         const commandName = process.argv[2];
