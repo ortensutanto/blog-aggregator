@@ -1,9 +1,12 @@
-import { CommandsRegistry, handlerLogin, registerCommand, runCommand } from "./commandHelper";
+import { CommandsRegistry, handlerGetUsers, handlerLogin, handlerRegister, handlerReset, registerCommand, runCommand } from "./commandHelper";
 import { readConfig, setUser } from "./config";
 
-function main() {
+async function main() {
     let registry: CommandsRegistry = {};
     registerCommand(registry, "login", handlerLogin);
+    registerCommand(registry, "register", handlerRegister);
+    registerCommand(registry, "reset", handlerReset);
+    registerCommand(registry, "users", handlerGetUsers);
 
     try {
         const commandName = process.argv[2];
@@ -13,13 +16,15 @@ function main() {
             console.error("not enough arguments were provided.");
             process.exit(1)
         }
-        runCommand(registry, commandName, ...commandArgs);
+        await runCommand(registry, commandName, ...commandArgs);
+        process.exit(0);
     } catch (error: unknown) {
         if (error instanceof Error) {
             console.error(error.message);
         }
         process.exit(1);
     }
+
 }
 
 main();
