@@ -1,6 +1,7 @@
 import { XMLParser } from "fast-xml-parser";
-import { createFeed } from "../db/queries/feeds";
+import { createFeed, getFeedByUrl } from "../db/queries/feeds";
 import { Feed, User, users } from "../db/schema";
+import { createFeedFollows, getFeedFollowExists } from "../db/queries/feedfollows";
 
 export type RSSFeed = {
     channel: {
@@ -79,8 +80,20 @@ export async function fetchFeed(feedUrl: string) {
 
 export async function addFeed(feedName: string, feedUrl: string, userId: string) {
     try {
-        const result = await createFeed(feedName, feedUrl, userId);
+        const feedCheck = await getFeedByUrl(feedUrl);
+        let feedResult;
+        if (!feedCheck) {
+            feedResult = await createFeed(feedName, feedUrl, userId);
+        } else {
+            feedResult = feedCheck;
+        }
+        const checkFeedFollowsExist = await getFeedFollowExists(userId, feedResult.id);
+        if (checkFeedFollowsExist) {
+            console.log("You are already following this feed");
+            return;
+        }
         console.log(`${feedName} feed has succesfully been created by ${userId}`);
+        const result = await createFeedFollows(userId, feedResult.id);
     } catch (err) {
         throw err;
     }

@@ -1,7 +1,9 @@
 import { readConfig, setUser } from "./config";
-import { createUser, getUserByName, getUserIdByName, getUsers, resetUsers } from "./lib/db/queries/users";
+import { getFeeds } from "./lib/db/queries/feeds";
+import { resetTables } from "./lib/db/queries/reset";
+import { createUser, getUserByName, getUserIdByName, getUserNameById, getUsers } from "./lib/db/queries/users";
 import { Feed, User } from "./lib/db/schema";
-import { addFeed, createFeed, fetchFeed } from "./lib/rss/feed";
+import { addFeed, fetchFeed } from "./lib/rss/feed";
 
 type CommandHandler = (cmdName: string, ...args: string[]) => Promise<void>;
 
@@ -51,10 +53,11 @@ export async function handlerRegister(cmdName: string, ...args: string[]) {
 
 export async function handlerReset(cmdName: string, ...args: string[]) {
     try {
-        const resetResponse = await resetUsers();
-        if (!resetResponse) {
-            throw new Error("Unable to reset table");
-        }
+        await resetTables();
+        // No response  since deleting multiple tables
+        // if (!resetResponse) {
+        //     throw new Error("Unable to reset table");
+        // }
         console.log("Table content has been deleted");
     } catch (err: unknown) {
         if (err instanceof Error) {
@@ -98,7 +101,9 @@ export async function handlerAddFeed(cmdName: string, ...args: string[]) {
     const feedName = args[0];
     const feedUrl = args[1];
 
-    await addFeed(feedName, feedUrl, currUserId);
+    const result = await addFeed(feedName, feedUrl, currUserId);
+    console.log(`Feed Name: ${feedName}`);
+    console.log(`User Name: ${currUserName}`);
 }
 
 function printFeed(feed: Feed, user: User) {
@@ -108,6 +113,17 @@ function printFeed(feed: Feed, user: User) {
     console.log(`* name:          ${feed.name}`);
     console.log(`* URL:           ${feed.url}`);
     console.log(`* User:          ${user.name}`);
+}
+
+export async function handlerPrintFeed() {
+    const feeds: Feed[] = await getFeeds();  
+    for (const feed of feeds) {
+        const user = await getUserNameById(feed.userId);
+        if (!user) {
+            continue;
+        }
+        printFeed(feed, user);
+    }
 }
 
 export async function registerCommand(registry: CommandsRegistry, cmdName: string, handler: CommandHandler) {
