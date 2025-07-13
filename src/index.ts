@@ -1,5 +1,6 @@
 import { CommandsRegistry, handlerAddFeed, handlerGetUsers, handlerLogin, handlerPrintFeed, handlerRegister, handlerReset, handlerRssFeed, registerCommand, runCommand } from "./commandHelper";
 import { handlerFollow, handlerFollowing } from "./feedFollow";
+import { middlewareLoggedIn } from "./middleware";
 
 async function main() {
     let registry: CommandsRegistry = {};

@@ -5,7 +5,7 @@ import { createUser, getUserByName, getUserIdByName, getUserNameById, getUsers }
 import { Feed, User } from "./lib/db/schema";
 import { addFeed, fetchFeed } from "./lib/rss/feed";
 
-type CommandHandler = (cmdName: string, ...args: string[]) => Promise<void>;
+export type CommandHandler = (cmdName: string, ...args: string[]) => Promise<void>;
 
 export type CommandsRegistry = Record<string, CommandHandler>;
 
