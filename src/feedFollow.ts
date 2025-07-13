@@ -1,5 +1,5 @@
 import { readConfig } from "./config";
-import { createFeedFollows, getFeedFollowsForUser } from "./lib/db/queries/feedfollows";
+import { createFeedFollows, deleteFeedFollow, getFeedFollowsForUser } from "./lib/db/queries/feedfollows";
 import { getFeedByUrl } from "./lib/db/queries/feeds";
 import { getUserIdByName } from "./lib/db/queries/users";
 
@@ -23,4 +23,20 @@ export async function handlerFollowing() {
     for (const feedFollow of feedFollows) {
         console.log(feedFollow.feedName);
     }
+}
+
+export async function handlerUnfollow(cmdName: string, ...cmdArgs: string[]) {
+    const currUser = readConfig();
+    const currUserId = await getUserIdByName(currUser.currentUserName);
+    if (!currUserId) {
+        throw new Error("User does not exist");
+    }
+    const url = cmdArgs[0];
+    const feedId = await getFeedByUrl(url);
+    if (!feedId) {
+        throw new Error("Feed does not exist");
+    }
+
+    const result = await deleteFeedFollow(currUserId.id, feedId.id);
+    console.log(`Feed ${feedId.name} has been unfollowed`);
 }

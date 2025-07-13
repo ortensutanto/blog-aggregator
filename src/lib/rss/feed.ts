@@ -1,5 +1,5 @@
 import { XMLParser } from "fast-xml-parser";
-import { createFeed, getFeedByUrl } from "../db/queries/feeds";
+import { createFeed, getFeedByUrl, updateFeedFetch } from "../db/queries/feeds";
 import { Feed, User, users } from "../db/schema";
 import { createFeedFollows, getFeedFollowExists } from "../db/queries/feedfollows";
 

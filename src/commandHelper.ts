@@ -1,9 +1,12 @@
+import { time } from "console";
 import { readConfig, setUser } from "./config";
 import { getFeeds } from "./lib/db/queries/feeds";
 import { resetTables } from "./lib/db/queries/reset";
 import { createUser, getUserByName, getUserIdByName, getUserNameById, getUsers } from "./lib/db/queries/users";
 import { Feed, User } from "./lib/db/schema";
 import { addFeed, fetchFeed } from "./lib/rss/feed";
+import { scrapeFeeds } from "./lib/rss/aggregate";
+import { parse } from "path";
 
 export type CommandHandler = (cmdName: string, ...args: string[]) => Promise<void>;
 
@@ -81,13 +84,55 @@ export async function handlerGetUsers(cmdName: string, ...args: string[]) {
     }
 }
 
-export async function handlerRssFeed(cmdName: string, ...args: string[]) {
-    const tempUrl = "https://www.wagslane.dev/index.xml";
-    const feedData = await fetchFeed(tempUrl);
-    const feedDataStr = JSON.stringify(feedData, null, 2);
-    console.log(feedDataStr);
+// export async function handlerRssFeed(cmdName: string, ...args: string[]) {
+//     const url = args[0];
+//     const feedData = await fetchFeed(url);
+//     const feedDataStr = JSON.stringify(feedData, null, 2);
+//     console.log(feedDataStr);
+// }
+
+function parseDuration(duration: string) {
+    const regex = /^(\d+)(ms|s|m|h)$/;
+    const match = duration.match(regex);
+    console.log(duration);
+    if (!match) {
+        return -1;
+    }
+    const time: number = parseInt(match[1]);
+    const format = match[2];
+
+    if (format === "ms") {
+        return time;
+    } else if (format === "s") {
+        return time * 1000;
+    } else if (format === "m") {
+        return time * 1000 * 60;
+    } else {
+        return time * 1000 * 60 * 60;
+    }
 }
 
+export async function handlerRssFeed(cmdName: string, time_between_reqs: string) {
+    const duration = parseDuration(time_between_reqs);
+    console.log(duration);
+    if (duration === -1) {
+        throw new Error("Invalid time between requests");
+    }
+    console.log(`Collecting feeds every ${time_between_reqs}`);
+    scrapeFeeds().catch();
+
+    const interval = setInterval(() => {
+        scrapeFeeds().catch();
+    }, duration);
+
+    await new Promise<void>((resolve) => {
+        process.on("SIGINT", () => {
+            console.log("Shutting down feed aggregator...");
+            clearInterval(interval);
+            resolve();
+        });
+    });
+}
 export async function handlerAddFeed(cmdName: string, ...args: string[]) {
     if (args.length !== 2) {
         throw new Error("Not enough arguments");

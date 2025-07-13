@@ -29,3 +29,9 @@ export async function getFeedFollowExists(userId: string, feedId: string) {
     .where(and(eq(feed_follows.userId, userId), eq(feed_follows.feedId, feedId)));
     return result;
 }
+
+export async function deleteFeedFollow(userId: string, feedId: string) {
+    const [result] = await db.delete(feed_follows)
+    .where(and(eq(feed_follows.userId, userId), eq(feed_follows.feedId, feedId)));
+    return result;
+}
