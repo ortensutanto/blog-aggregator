@@ -1,6 +1,7 @@
 import { readConfig, setUser } from "./config";
-import { createUser, getUserByName, getUsers, resetUsers } from "./lib/db/queries/users";
-import { fetchFeed } from "./lib/rss/feed";
+import { createUser, getUserByName, getUserIdByName, getUsers, resetUsers } from "./lib/db/queries/users";
+import { Feed, User } from "./lib/db/schema";
+import { addFeed, createFeed, fetchFeed } from "./lib/rss/feed";
 
 type CommandHandler = (cmdName: string, ...args: string[]) => Promise<void>;
 
@@ -82,6 +83,31 @@ export async function handlerRssFeed(cmdName: string, ...args: string[]) {
     const feedData = await fetchFeed(tempUrl);
     const feedDataStr = JSON.stringify(feedData, null, 2);
     console.log(feedDataStr);
+}
+
+export async function handlerAddFeed(cmdName: string, ...args: string[]) {
+    if (args.length !== 2) {
+        throw new Error("Not enough arguments");
+    }
+    const currUserName = readConfig().currentUserName;
+
+    const currUserId = (await getUserIdByName(currUserName)).id;
+    if (!currUserId) {
+        throw new Error("User does not exist");
+    }
+    const feedName = args[0];
+    const feedUrl = args[1];
+
+    await addFeed(feedName, feedUrl, currUserId);
+}
+
+function printFeed(feed: Feed, user: User) {
+    console.log(`* ID:            ${feed.id}`);
+    console.log(`* Created:       ${feed.createdAt}`);
+    console.log(`* Updated:       ${feed.updatedAt}`);
+    console.log(`* name:          ${feed.name}`);
+    console.log(`* URL:           ${feed.url}`);
+    console.log(`* User:          ${user.name}`);
 }
 
 export async function registerCommand(registry: CommandsRegistry, cmdName: string, handler: CommandHandler) {

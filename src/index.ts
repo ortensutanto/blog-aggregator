@@ -1,5 +1,4 @@
-import { CommandsRegistry, handlerGetUsers, handlerLogin, handlerRegister, handlerReset, handlerRssFeed, registerCommand, runCommand } from "./commandHelper";
-import { readConfig, setUser } from "./config";
+import { CommandsRegistry, handlerAddFeed, handlerGetUsers, handlerLogin, handlerRegister, handlerReset, handlerRssFeed, registerCommand, runCommand } from "./commandHelper";
 
 async function main() {
     let registry: CommandsRegistry = {};
@@ -8,6 +7,7 @@ async function main() {
     registerCommand(registry, "reset", handlerReset);
     registerCommand(registry, "users", handlerGetUsers);
     registerCommand(registry, "agg", handlerRssFeed);
+    registerCommand(registry, "addfeed", handlerAddFeed);
 
     try {
         const commandName = process.argv[2];

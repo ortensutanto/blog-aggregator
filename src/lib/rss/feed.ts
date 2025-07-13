@@ -1,4 +1,6 @@
 import { XMLParser } from "fast-xml-parser";
+import { createFeed } from "../db/queries/feeds";
+import { Feed, User, users } from "../db/schema";
 
 export type RSSFeed = {
     channel: {
@@ -73,4 +75,13 @@ export async function fetchFeed(feedUrl: string) {
             item: items,
         },
     };
+}
+
+export async function addFeed(feedName: string, feedUrl: string, userId: string) {
+    try {
+        const result = await createFeed(feedName, feedUrl, userId);
+        console.log(`${feedName} feed has succesfully been created by ${userId}`);
+    } catch (err) {
+        throw err;
+    }
 }
