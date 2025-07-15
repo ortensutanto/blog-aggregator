@@ -1,9 +1,11 @@
 import { CommandsRegistry, handlerAddFeed, handlerGetUsers, handlerLogin, handlerPrintFeed, handlerRegister, handlerReset, handlerRssFeed, registerCommand, runCommand } from "./commandHelper";
 import { handlerFollow, handlerFollowing, handlerUnfollow } from "./feedFollow";
 import { middlewareLoggedIn } from "./middleware";
+import { handlerBrowse } from "./posts";
 
 async function main() {
     let registry: CommandsRegistry = {};
+    // This is absolutely the wrong way to do this isn't it
     registerCommand(registry, "login", handlerLogin);
     registerCommand(registry, "register", handlerRegister);
     registerCommand(registry, "reset", handlerReset);
@@ -14,6 +16,7 @@ async function main() {
     registerCommand(registry, "follow", handlerFollow);
     registerCommand(registry, "following", handlerFollowing);
     registerCommand(registry, "unfollow", handlerUnfollow);
+    registerCommand(registry, "browse", handlerBrowse);
 
     try {
         const commandName = process.argv[2];
