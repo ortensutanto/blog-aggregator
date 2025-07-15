@@ -14,13 +14,13 @@ Gator is a simple RSS blog aggregator written in TypeScript. It allows you to ad
 3. Create the postgres database called gator
 4. Create a config file in your home directory called `.gatorconfig.json`
     - Containing `{"db_url":"<username>://<password>:postgres@localhost:5432/gator?sslmode=disable"}`
-    - Fill <username> and <password> according to your database settings
+    - Fill username and password according to your database settings
 5. Run `npx drizzle-kit migrate`
 6. To run commands use `npm run start <commands>`
 
 ### Commands
-- register "<username>": Registers a user in the database
-- login "<username>": Sets current user in .gatorconfig.json
+- register "username": Registers a user in the database
+- login "username": Sets current user in .gatorconfig.json
 - reset: Resets all tables in the database
 - users: Shows all users in the database, and highlights the current logged in user
 - addfeed "feedName" "feedUrl": Adds an RSS feed with a certain name and url, current user is automatically following
